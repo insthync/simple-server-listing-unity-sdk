@@ -86,7 +86,7 @@ namespace SimpleServerListingSDK
             return await SendRequestAsync("/health", $"{{\"id\":\"{ServerId}\"}}").ContinueWith(task => task.Result.isPass);
         }
 
-        public async Task<bool> Update(ServerData updateServerData)
+        public async Task<bool> UpdateInfo(ServerData updateServerData)
         {
             return await SendRequestAsync("/update", JsonUtility.ToJson(updateServerData), UnityWebRequest.kHttpVerbPUT).ContinueWith(task => task.Result.isPass);
         }
