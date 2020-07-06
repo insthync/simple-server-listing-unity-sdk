@@ -56,6 +56,17 @@ namespace SimpleServerListingSDK
             cancellationTokenSource.Dispose();
         }
 
+        public async Task<List<ServerData>> List()
+        {
+            var result = await SendRequestAsync("/", "{}", UnityWebRequest.kHttpVerbGET);
+            if (result.isPass)
+            {
+                ServerListResult serverDataResult = JsonUtility.FromJson<ServerListResult>(result.body);
+                return serverDataResult.gameServers;
+            }
+            return new List<ServerData>();
+        }
+
         public async Task<bool> Connect(ServerData connectServerData)
         {
             var result = await SendRequestAsync("/connect", JsonUtility.ToJson(connectServerData));
