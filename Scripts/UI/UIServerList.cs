@@ -24,7 +24,7 @@ namespace SimpleServerListingSDK.UI
 
         public async void GetList()
         {
-            var list = await SimpleServerListingSDK.Instance.List();
+            var list = await ServerListingManager.Instance.List();
             for (var i = container.childCount - 1; i >= 0; --i)
             {
                 Destroy(container.GetChild(i).gameObject);

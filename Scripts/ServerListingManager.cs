@@ -11,15 +11,15 @@ using UnityEngine.Networking;
 
 namespace SimpleServerListingSDK
 {
-    public class SimpleServerListingSDK : MonoBehaviour
+    public class ServerListingManager : MonoBehaviour
     {
-        private static SimpleServerListingSDK instance;
-        public static SimpleServerListingSDK Instance
+        private static ServerListingManager instance;
+        public static ServerListingManager Instance
         {
             get
             {
                 if (!instance)
-                    new GameObject("_SimpleServerListingSDK").AddComponent<SimpleServerListingSDK>();
+                    new GameObject("_SimpleServerListingSDK").AddComponent<ServerListingManager>();
                 return instance;
             }
         }
@@ -88,6 +88,7 @@ namespace SimpleServerListingSDK
 
         public async Task<bool> UpdateInfo(ServerData updateServerData)
         {
+            updateServerData.id = ServerId;
             return await SendRequestAsync("/update", JsonUtility.ToJson(updateServerData), UnityWebRequest.kHttpVerbPUT).ContinueWith(task => task.Result.isPass);
         }
 
