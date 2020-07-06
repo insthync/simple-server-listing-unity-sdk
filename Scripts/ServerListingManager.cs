@@ -99,7 +99,11 @@ namespace SimpleServerListingSDK
         {
             if (!IsConnected)
                 return false;
-            var result = await SendRequestAsync("/shutdown", "{}");
+            ServerData updateServerData = new ServerData()
+            {
+                id = ServerId
+            };
+            var result = await SendRequestAsync("/shutdown", JsonUtility.ToJson(updateServerData));
             if (result.isPass)
             {
                 ServerId = string.Empty;
