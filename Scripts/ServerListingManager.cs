@@ -27,6 +27,7 @@ namespace SimpleServerListingSDK
         public float healthInterval = 1f;
         public string serviceAddress = "http://localhost:8000";
 
+        public bool IsConnected { get { return !string.IsNullOrEmpty(ServerId); } }
         public string ServerId { get; private set; }
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
@@ -81,19 +82,23 @@ namespace SimpleServerListingSDK
 
         public async Task<bool> Health()
         {
-            if (string.IsNullOrEmpty(ServerId))
+            if (!IsConnected)
                 return false;
             return await SendRequestAsync("/health", $"{{\"id\":\"{ServerId}\"}}").ContinueWith(task => task.Result.isPass);
         }
 
         public async Task<bool> UpdateInfo(ServerData updateServerData)
         {
+            if (!IsConnected)
+                return false;
             updateServerData.id = ServerId;
             return await SendRequestAsync("/update", JsonUtility.ToJson(updateServerData), UnityWebRequest.kHttpVerbPUT).ContinueWith(task => task.Result.isPass);
         }
 
         public async Task<bool> ShutDown()
         {
+            if (!IsConnected)
+                return false;
             var result = await SendRequestAsync("/shutdown", "{}");
             if (result.isPass)
             {
