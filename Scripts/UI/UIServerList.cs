@@ -8,6 +8,7 @@ namespace SimpleServerListingSDK.UI
     {
         public Transform container;
         public UIServerData uiPrefab;
+        public GameObject noServerState;
         public float updateInterval = 1f;
         private float intervalCountDown;
 
@@ -34,6 +35,8 @@ namespace SimpleServerListingSDK.UI
                 var newUI = Instantiate(uiPrefab, container);
                 newUI.serverData = data;
             }
+            if (noServerState)
+                noServerState.SetActive(list.Count == 0);
         }
     }
 }
