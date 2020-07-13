@@ -25,11 +25,14 @@ namespace SimpleServerListingSDK
         }
 
         public float healthInterval = 1f;
+        public float reconnectInterval = 1f;
         public string serviceAddress = "http://localhost:8000";
 
         public bool IsConnected { get { return !string.IsNullOrEmpty(ServerId); } }
         public string ServerId { get; private set; }
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private bool connecting;
+        private ServerData connectingData;
 
         private void Awake()
         {
@@ -47,13 +50,15 @@ namespace SimpleServerListingSDK
             HealthCheckAsync();
         }
 
-        private void OnDestroy()
+        private async void OnDestroy()
         {
+            await ShutDown();
             cancellationTokenSource.Dispose();
         }
 
-        private void OnApplicationQuit()
+        private async void OnApplicationQuit()
         {
+            await ShutDown();
             cancellationTokenSource.Dispose();
         }
 
@@ -68,23 +73,31 @@ namespace SimpleServerListingSDK
             return new List<ServerData>();
         }
 
-        public async Task<bool> Connect(ServerData connectServerData)
+        public bool Connect(ServerData connectServerData)
         {
-            var result = await SendRequestAsync("/connect", JsonUtility.ToJson(connectServerData));
-            if (result.isPass)
-            {
-                ServerDataResult serverDataResult = JsonUtility.FromJson<ServerDataResult>(result.body);
-                ServerId = serverDataResult.gameServer.id;
-                return true;
-            }
-            return false;
+            if (connecting)
+                return false;
+            connecting = true;
+            connectingData = connectServerData;
+            ConnectAsync();
+            return true;
         }
 
         public async Task<bool> Health()
         {
             if (!IsConnected)
                 return false;
-            return await SendRequestAsync("/health", $"{{\"id\":\"{ServerId}\"}}").ContinueWith(task => task.Result.isPass);
+            var result = await SendRequestAsync("/health", $"{{\"id\":\"{ServerId}\"}}");
+            if (result.isPass)
+                return true;
+            if (result.statusCode == (long)HttpStatusCode.NotFound)
+            {
+                // It may timedout from the server, so try to reconnect
+                ServerId = string.Empty;
+                connecting = true;
+                ConnectAsync();
+            }
+            return false;
         }
 
         public async Task<bool> UpdateInfo(ServerData updateServerData)
@@ -97,31 +110,53 @@ namespace SimpleServerListingSDK
 
         public async Task<bool> ShutDown()
         {
+            connecting = false;
             if (!IsConnected)
                 return false;
-            var result = await SendRequestAsync("/shutdown", $"{{\"id\":\"{ServerId}\"}}");
-            if (result.isPass)
+            ServerId = string.Empty;
+            await SendRequestAsync("/shutdown", $"{{\"id\":\"{ServerId}\"}}");
+            return true;
+        }
+
+        private async void ConnectAsync()
+        {
+            while (connecting)
             {
-                ServerId = string.Empty;
-                return true;
+                RequestResult result;
+                try
+                {
+                    result = await SendRequestAsync("/connect", JsonUtility.ToJson(connectingData));
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Game object destroyed
+                    break;
+                }
+                if (result.isPass)
+                {
+                    // Connected then break from reconnect loop
+                    ServerDataResult serverDataResult = JsonUtility.FromJson<ServerDataResult>(result.body);
+                    ServerId = serverDataResult.gameServer.id;
+                    break;
+                }
+                await Task.Delay(TimeSpan.FromSeconds(reconnectInterval));
             }
-            return false;
         }
 
         private async void HealthCheckAsync()
         {
             while (true)
             {
-                await Task.Delay(TimeSpan.FromSeconds(healthInterval));
-
                 try
                 {
                     await Health();
                 }
                 catch (ObjectDisposedException)
                 {
+                    // Game object destroyed
                     break;
                 }
+                await Task.Delay(TimeSpan.FromSeconds(healthInterval));
             }
         }
 
