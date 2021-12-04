@@ -28,14 +28,20 @@ namespace SimpleServerListingSDK.UI
             var list = await ServerListingManager.Instance.List();
             for (var i = container.childCount - 1; i >= 0; --i)
             {
-                Destroy(container.GetChild(i).gameObject);
+                if (container.GetChild(i) != null && container.GetChild(i).gameObject != null)
+                {
+                    Destroy(container.GetChild(i).gameObject);
+                }
             }
             foreach (var data in list)
             {
-                var newUI = Instantiate(uiPrefab, container);
-                newUI.serverData = data;
+                if (uiPrefab != null && container != null)
+                {
+                    var newUI = Instantiate(uiPrefab, container);
+                    newUI.serverData = data;
+                }
             }
-            if (noServerState)
+            if (noServerState != null)
                 noServerState.SetActive(list.Count == 0);
         }
     }
