@@ -180,7 +180,7 @@ namespace SimpleServerListingSDK
             req.SetRequestHeader("Content-Type", "application/json");
             await new WebRequestAsyncWrapper(req.SendWebRequest());
             if (req.responseCode != (long)HttpStatusCode.OK)
-                Debug.LogError("Error occurs when call [" + api + "] : " + req.error);
+                Debug.LogError("Error occurs when call [" + serviceAddress + api + "] : " + req.error);
             return new RequestResult()
             {
                 isPass = req.responseCode == (long)HttpStatusCode.OK,
