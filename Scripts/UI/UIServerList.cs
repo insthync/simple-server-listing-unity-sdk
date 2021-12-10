@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SimpleServerListingSDK.UI
@@ -10,6 +10,10 @@ namespace SimpleServerListingSDK.UI
         public UIServerData uiPrefab;
         public GameObject noServerState;
         public float updateInterval = 1f;
+        public bool sortByTitle = true;
+        public bool sortDescendy;
+        public List<string> filterTitles = new List<string>();
+        public List<string> filterMaps = new List<string>();
         private float intervalCountDown;
 
         private void Update()
@@ -36,16 +40,25 @@ namespace SimpleServerListingSDK.UI
                     }
                 }
             }
+            if (sortByTitle)
+            {
+                if (sortDescendy)
+                    list = list.OrderByDescending(o => o.title).ToList();
+                else
+                    list = list.OrderBy(o => o.title).ToList();
+            }
             foreach (var data in list)
             {
-                if (uiPrefab != null && container != null)
+                if (uiPrefab != null && container != null &&
+                    (filterTitles.Count == 0 || filterTitles.Where(o => o.ToLower().Trim().Contains(data.title.ToLower().Trim())).Count() > 0) &&
+                    (filterMaps.Count == 0 || filterMaps.Where(o => o.ToLower().Trim().Contains(data.map.ToLower().Trim())).Count() > 0))
                 {
                     var newUI = Instantiate(uiPrefab, container);
                     newUI.serverData = data;
                 }
             }
             if (noServerState != null)
-                noServerState.SetActive(list.Count == 0);
+                noServerState.SetActive(container.childCount == 0);
         }
     }
 }

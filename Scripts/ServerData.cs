@@ -1,6 +1,8 @@
-﻿namespace SimpleServerListingSDK
+﻿using System;
+
+namespace SimpleServerListingSDK
 {
-    [System.Serializable]
+    [Serializable]
     public struct ServerData
     {
         public string id;
