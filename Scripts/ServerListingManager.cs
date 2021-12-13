@@ -179,11 +179,11 @@ namespace SimpleServerListingSDK
             };
             req.SetRequestHeader("Content-Type", "application/json");
             await new WebRequestAsyncWrapper(req.SendWebRequest());
-            if (req.responseCode != (long)HttpStatusCode.OK)
-                Debug.LogError("Error occurs when call [" + serviceAddress + api + "] : " + req.error);
+            if (req.isNetworkError || req.isHttpError)
+                Debug.LogError("Error occurs when call [" + serviceAddress + api + "] : " + req.error + "(" + req.responseCode + ") Network Error : " + req.isNetworkError);
             return new RequestResult()
             {
-                isPass = req.responseCode == (long)HttpStatusCode.OK,
+                isPass = !req.isNetworkError && !req.isHttpError,
                 statusCode = req.responseCode,
                 body = req.downloadHandler.text
             };
