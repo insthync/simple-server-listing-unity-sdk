@@ -56,6 +56,7 @@ namespace SimpleServerListingSDK.UI
                     (filterMaps.Count == 0 || filterMaps.Where(o => o.ToLower().Trim().Contains(data.map.ToLower().Trim())).Count() > 0))
                 {
                     var newUI = Instantiate(uiPrefab, container);
+                    newUI.list = this;
                     newUI.serverData = data;
                 }
                 PlayersCountFromAllServers += data.currentPlayer;
