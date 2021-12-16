@@ -15,6 +15,7 @@ namespace SimpleServerListingSDK.UI
         public List<string> filterTitles = new List<string>();
         public List<string> filterMaps = new List<string>();
         private float intervalCountDown;
+        public int PlayersCountFromAllServers { get; private set; }
 
         private void Update()
         {
@@ -47,6 +48,7 @@ namespace SimpleServerListingSDK.UI
                 else
                     list = list.OrderBy(o => o.title).ToList();
             }
+            PlayersCountFromAllServers = 0;
             foreach (var data in list)
             {
                 if (uiPrefab != null && container != null &&
@@ -56,6 +58,7 @@ namespace SimpleServerListingSDK.UI
                     var newUI = Instantiate(uiPrefab, container);
                     newUI.serverData = data;
                 }
+                PlayersCountFromAllServers += data.currentPlayer;
             }
             if (noServerState != null)
                 noServerState.SetActive(container.childCount == 0);

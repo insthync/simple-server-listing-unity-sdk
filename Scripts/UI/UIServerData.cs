@@ -1,23 +1,29 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 
 namespace SimpleServerListingSDK.UI
 {
     public class UIServerData : MonoBehaviour
     {
+        public UIServerList list;
         public ServerData serverData;
         public Text textTitle;
         public Text textDescription;
         public Text textMap;
-        public string formatPlayer = "{0}/{1}";
-        public Text textPlayer;
+        [FormerlySerializedAs("formatPlayer")]
+        public string formatPlayersCount = "{0}/{1}";
+        [FormerlySerializedAs("textPlayer")]
+        public Text textPlayersCount;
+        public Text textPlayersCountFromAllServers;
 
         private void Update()
         {
             if (textTitle) textTitle.text = serverData.title;
             if (textDescription) textDescription.text = serverData.description;
             if (textMap) textMap.text = serverData.map;
-            if (textPlayer) textPlayer.text = string.Format(formatPlayer, serverData.currentPlayer, serverData.maxPlayer);
+            if (textPlayersCount) textPlayersCount.text = string.Format(formatPlayersCount, serverData.currentPlayer, serverData.maxPlayer);
+            if (textPlayersCountFromAllServers) textPlayersCountFromAllServers.text = list.PlayersCountFromAllServers.ToString("N0");
         }
     }
 }
