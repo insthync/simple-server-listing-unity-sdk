@@ -179,14 +179,26 @@ namespace SimpleServerListingSDK
             };
             req.SetRequestHeader("Content-Type", "application/json");
             await new WebRequestAsyncWrapper(req.SendWebRequest());
-            if (req.isNetworkError || req.isHttpError)
-                Debug.LogError("Error occurs when call [" + serviceAddress + api + "] : " + req.error + "(" + req.responseCode + ") Network Error : " + req.isNetworkError);
+            if (IsRequestError(req))
+                Debug.LogError("Error occurs when call [" + serviceAddress + api + "] : " + req.error + "(" + req.responseCode + ")");
             return new RequestResult()
             {
-                isPass = !req.isNetworkError && !req.isHttpError,
+                isPass = !IsRequestError(req),
                 statusCode = req.responseCode,
                 body = req.downloadHandler.text
             };
+        }
+
+        public bool IsRequestError(UnityWebRequest unityWebRequest)
+        {
+#if UNITY_2020_2_OR_NEWER
+            UnityWebRequest.Result result = unityWebRequest.result;
+            return (result == UnityWebRequest.Result.ConnectionError)
+                || (result == UnityWebRequest.Result.DataProcessingError)
+                || (result == UnityWebRequest.Result.ProtocolError);
+#else
+            return unityWebRequest.isHttpError || unityWebRequest.isNetworkError;
+#endif
         }
 
         private class WebRequestAsyncWrapper
