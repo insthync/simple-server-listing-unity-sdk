@@ -179,17 +179,17 @@ namespace SimpleServerListingSDK
             };
             req.SetRequestHeader("Content-Type", "application/json");
             await new WebRequestAsyncWrapper(req.SendWebRequest());
-            if (IsRequestError(req))
+            if (WebRequestIsError(req))
                 Debug.LogError("Error occurs when call [" + serviceAddress + api + "] : " + req.error + "(" + req.responseCode + ")");
             return new RequestResult()
             {
-                isPass = !IsRequestError(req),
+                isPass = !WebRequestIsError(req),
                 statusCode = req.responseCode,
                 body = req.downloadHandler.text
             };
         }
 
-        public bool IsRequestError(UnityWebRequest unityWebRequest)
+        public bool WebRequestIsError(UnityWebRequest unityWebRequest)
         {
 #if UNITY_2020_2_OR_NEWER
             UnityWebRequest.Result result = unityWebRequest.result;
