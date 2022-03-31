@@ -18,8 +18,6 @@ namespace SimpleServerListingSDK
         {
             get
             {
-                if (!instance)
-                    new GameObject("_SimpleServerListingSDK").AddComponent<ServerListingManager>();
                 return instance;
             }
         }
