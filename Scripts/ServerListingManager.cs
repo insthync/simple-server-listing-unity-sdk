@@ -165,16 +165,15 @@ namespace SimpleServerListingSDK
             public string body;
         }
 
-        private async Task<RequestResult>  SendRequestAsync(string api, string json, string method = UnityWebRequest.kHttpVerbPOST)
+        private async Task<RequestResult> SendRequestAsync(string api, string json, string method = UnityWebRequest.kHttpVerbPOST)
         {
             // To prevent that an async method leaks after destroying this gameObject.
             cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
-            var req = new UnityWebRequest(serviceAddress + api, method)
-            {
-                uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json)),
-                downloadHandler = new DownloadHandlerBuffer()
-            };
+            var req = new UnityWebRequest(serviceAddress + api, method);
+            if (!method.Equals(UnityWebRequest.kHttpVerbGET))
+                req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
+            req.downloadHandler = new DownloadHandlerBuffer();
             req.SetRequestHeader("Content-Type", "application/json");
             await new WebRequestAsyncWrapper(req.SendWebRequest());
             if (WebRequestIsError(req))
