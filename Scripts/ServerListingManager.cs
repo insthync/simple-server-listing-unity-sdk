@@ -176,6 +176,7 @@ namespace SimpleServerListingSDK
             if (!method.Equals(UnityWebRequest.kHttpVerbGET))
                 req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
             req.downloadHandler = new DownloadHandlerBuffer();
+            req.certificateHandler = new RequestCertificate();
             req.SetRequestHeader("Content-Type", "application/json");
             await new WebRequestAsyncWrapper(req.SendWebRequest());
             if (WebRequestIsError(req))
@@ -240,6 +241,14 @@ namespace SimpleServerListingSDK
             {
                 continuation?.Invoke();
                 continuation = null;
+            }
+        }
+
+        private class RequestCertificate : CertificateHandler
+        {
+            protected override bool ValidateCertificate(byte[] certificateData)
+            {
+                return true;
             }
         }
     }
